@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 class medicament{
 private:
@@ -9,12 +8,12 @@ private:
     float pret;
     bool prescriptie; /// True pentru medicamentele care necesita prescriptie medicala, False pentru medicamentele "Over the counter"
     bool compensat; /// True pentru compensate, False pentru necompensate (se aplica 90% reducere la pret)
+    int med_id; /// este unic si coincide cu pozitia medicamentului in vectorul din stocul farmaciei
 public:
     medicament() = default;
 
-    medicament(const std::string &nume, float pret, bool prescriptie, bool compensat) : nume(nume), pret(pret),
-                                                                                        prescriptie(prescriptie),
-                                                                                        compensat(compensat) {}
+    medicament(const std::string &nume, float pret, bool prescriptie, bool compensat, int medId) :
+    nume(nume),pret(pret),prescriptie(prescriptie),compensat(compensat),med_id(medId) {}
 
     float getPret() const {
         return pret;
@@ -28,122 +27,123 @@ public:
         return compensat;
     }
 
-    void setNume(const std::string &nume) {
-        medicament::nume = nume;
+    int getMedId() const {
+        return med_id;
     }
 
-    void setPret(float pret) {
-        medicament::pret = pret;
-    }
-
-    void setPrescriptie(bool prescriptie) {
-        medicament::prescriptie = prescriptie;
-    }
-
-    void setCompensat(bool compensat) {
-        medicament::compensat = compensat;
+    const std::string &getNume() const {
+        return nume;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const medicament &medicament) {
-        os << medicament.nume;
+        os << medicament.nume << "(id=" << medicament.med_id << ")";
         return os;
     }
 
+    medicament& operator=(const medicament& copie) = default;
+
     bool operator==(const medicament &rhs) const {
-        return nume == rhs.nume &&
-               pret == rhs.pret &&
-               prescriptie == rhs.prescriptie &&
-               compensat == rhs.compensat;
+        return med_id == rhs.med_id;
     }
 
     bool operator!=(const medicament &rhs) const {
         return !(rhs == *this);
     }
+
+    ///destructorul este apelat foarte des deoarece vectorul isi realoca spatiul dinamic la fiecare push_back
+    virtual ~medicament() {
+        std::cout << "destr " << *this << ", ";
+    }
 };
 
 class stoc_farmacie{
 private:
-    std::vector<medicament> produse;
-    std::vector<int> cantitati;
+    std::vector<std::pair<medicament, int>> produse_cantitati;
 public:
     stoc_farmacie() = default;
 
-    stoc_farmacie(const std::vector<medicament> &produse, const std::vector<int> &cantitati) : produse(produse), cantitati(cantitati) {}
+    /*
+    explicit stoc_farmacie(const std::vector<std::pair<medicament, int>> &produseCantitati) {
+        for(int i = 0; i<produseCantitati.size(); i++)
+            if(produseCantitati[i].first.getMedId() != i){
+                std::cout << "\n\nEroare: ID gresit";
+                exit(1);
+            }
+        this -> produse_cantitati = produseCantitati;
+    }
+    */
 
-    const std::vector<medicament> &getProduse() const {
-        return produse;
+    int get_next_id(){
+        return produse_cantitati.size();
     }
 
-    const std::vector<int> &getCantitati() const {
-        return cantitati;
+    /// daca nu este corespunzator idul programul se opreste
+    void push_back(const medicament& first, int second){
+        if(first.getMedId() == get_next_id())
+            produse_cantitati.emplace_back(first, second);
+        else {
+            std::cout << "\n\nEroare: ID gresit";
+            exit(1);
+        }
     }
 
-    void setProduse(const std::vector<medicament> &produse) {
-        stoc_farmacie::produse = produse;
+    const medicament &get_by_id(int id){
+        return produse_cantitati[id].first;
     }
 
-    void setCantitati(const std::vector<int> &cantitati) {
-        stoc_farmacie::cantitati = cantitati;
+    const medicament &get_by_nume(const std::string& nume){
+        for(const auto & produse_cantitati_curr : produse_cantitati){
+            if(produse_cantitati_curr.first.getNume() == nume)
+                return produse_cantitati_curr.first;
+        }
+        std::cout << "Nu exista medicament cu numele " << nume << "\n";
+        exit(1);
+    }
+
+    const std::vector<std::pair<medicament, int>> &getProduseCantitati() const {
+        return produse_cantitati;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const stoc_farmacie &farmacie) {
-        os << "Farmacia are " << farmacie.produse.size() << " medicamente diferite:\n";
-        for(int i=0; i<farmacie.produse.size(); i++)
-            os << farmacie.produse[i] << " * " << farmacie.cantitati[i] << "\n";
+        os << "Stocul farmaciei contine " << farmacie.produse_cantitati.size() << " medicamente diferite:\n";
+        for(const auto & produse_cantitati_curr : farmacie.produse_cantitati)
+            os << produse_cantitati_curr.first << " * " << produse_cantitati_curr.second << "\n";
         return os;
     }
 };
 
 class cerere{
 private:
-    std::vector<medicament> produse;
-    std::vector<int> cantitati;
+    std::vector<std::pair<medicament, int>> produse_cantitati;
     bool prescriptie;
-
 public:
-    cerere(const std::vector<medicament> &produse, const std::vector<int> &cantitati, bool prescriptie) :
-    produse(produse), cantitati(cantitati), prescriptie(prescriptie) {}
+    cerere() = default;
 
-    const std::vector<medicament> &getProduse() const {
-        return produse;
-    }
+    /*
+    cerere(const std::vector<std::pair<medicament, int>> &produseCantitati, bool prescriptie) :
+    produse_cantitati(produseCantitati), prescriptie(prescriptie) {}
+    */
 
-    void setProduse(const std::vector<medicament> &produse) {
-        cerere::produse = produse;
-    }
-
-    const std::vector<int> &getCantitati() const {
-        return cantitati;
-    }
-
-    void setCantitati(const std::vector<int> &cantitati) {
-        cerere::cantitati = cantitati;
-    }
-
-    bool isPrescriptie() const {
-        return prescriptie;
-    }
-
-    void setPrescriptie(bool prescriptie) {
-        cerere::prescriptie = prescriptie;
+    void push_back(const medicament& first, int second){
+        produse_cantitati.emplace_back(first, second);
     }
 
     float pret_total(){
         float total = 0;
-        for(int i=0; i<produse.size(); i++)
-            if(produse[i].isCompensat()) {
-                std::cout << "Se aplica reducere de 90% pentru medicamentul compensat " << produse[i] << "\n";
-                total += produse[i].getPret() * cantitati[i] * 0.1;
+        for(auto & produse_cantitati_curr : produse_cantitati)
+            if(produse_cantitati_curr.first.isCompensat()) {
+                std::cout << "Se aplica reducere de 90% pentru medicamentul compensat " << produse_cantitati_curr.first << "\n";
+                total += produse_cantitati_curr.first.getPret() * produse_cantitati_curr.second * 0.1;
             } else {
-                total += produse[i].getPret() * cantitati[i];
+                total += produse_cantitati_curr.first.getPret() * produse_cantitati_curr.second;
             }
         return total;
     }
 
     bool prescriptie_check(){
         bool medicamente_prescrise = false;
-        for(int i=0; i<produse.size(); i++){
-            if(produse[i].isPrescriptie())
+        for(auto & produse_cantitati_curr : produse_cantitati){
+            if(produse_cantitati_curr.first.isPrescriptie())
                 medicamente_prescrise = true;
         }
         if(medicamente_prescrise && !prescriptie){
@@ -152,73 +152,67 @@ public:
         return true;
     }
 
-    bool exista_in_stoc( stoc_farmacie farm ){
-        std::vector<medicament> stoc_m = farm.getProduse();
-        std::vector<int> stoc_c = farm.getCantitati();
-        for(int i=0; i<produse.size(); i++){
-            int nr = 0;
-            auto it = stoc_m.begin();
-            for (; it != stoc_m.end(); it++) {
-                if(*it == produse[i])
-                    break;
-                nr++;
-            }
-            if( it == stoc_m.end() ){
-                return 0;
-            }
-            if(stoc_c[nr] < cantitati[i]){
-                return 0;
-            }
+    bool exista_in_stoc( const stoc_farmacie& farm ){
+        std::vector<std::pair<medicament, int>> stoc = farm.getProduseCantitati();
+        for(auto & produse_cantitati_cerere_curr : produse_cantitati){
+            int id = produse_cantitati_cerere_curr.first.getMedId();
+            if(id >= stoc.size())
+                return false;
+            if(stoc[id].first != produse_cantitati_cerere_curr.first)
+                return false;
+            if(stoc[id].second < produse_cantitati_cerere_curr.second)
+                return false;
         }
-        return 1;
+        return true;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const cerere &cerere) {
-        os << "Cererea are " << cerere.produse.size() << " medicamente diferite:\n";
-        for(int i=0; i<cerere.produse.size(); i++)
-            os << cerere.produse[i] << " * " << cerere.cantitati[i] << "\n";
+        os << "Cererea contine " << cerere.produse_cantitati.size() << " medicamente diferite:\n";
+        for(const auto & produse_cantitati_curr : cerere.produse_cantitati)
+            os << produse_cantitati_curr.first << " * " << produse_cantitati_curr.second << "\n";
         return os;
     }
 };
 
 int main(){
     ///initializez niste date pentru stoc
-    std::vector<medicament> medicamente_farmacie;
-    medicamente_farmacie.push_back(medicament("Lactyferrin", 44.0, 0, 0));
-    medicamente_farmacie.push_back(medicament("ImmunoMix", 47.0, 0, 0));
-    medicamente_farmacie.push_back(medicament("Klearvol", 14.5, 0, 0));
-    medicamente_farmacie.push_back(medicament("Nasirus", 22.0, 0, 0));
-    medicamente_farmacie.push_back(medicament("Golamir", 26.0, 0, 0));
-    medicamente_farmacie.push_back(medicament("Sintusin", 22.0, 0, 0));
-    medicamente_farmacie.push_back(medicament("PropoGrip", 33.0, 0, 0));
-    medicamente_farmacie.push_back(medicament("Suvezen", 69.59, 1, 0));
-    medicamente_farmacie.push_back(medicament("Imigran", 11.82, 1, 0));
-    medicamente_farmacie.push_back(medicament("Ferretab", 27.47, 1, 1));
-    medicamente_farmacie.push_back(medicament("Nordimet", 262.2, 1, 1));
-    std::vector<int> cant_farmacie = {5, 3, 8, 9, 3, 5, 2, 6, 7, 9, 6};
-    stoc_farmacie farm_1(medicamente_farmacie, cant_farmacie);
-    std::cout << farm_1 << "\n";
+    stoc_farmacie farm_1;
+    farm_1.push_back(medicament("Lactyferrin", 44.0, false, false, farm_1.get_next_id()), 5);
+    farm_1.push_back(medicament("ImmunoMix", 47.0, false, false, farm_1.get_next_id()), 3);
+    farm_1.push_back(medicament("Klearvol", 14.5, false, false, farm_1.get_next_id()), 8);
+    farm_1.push_back(medicament("Nasirus", 22.0, false, false, farm_1.get_next_id()), 9);
+    farm_1.push_back(medicament("Golamir", 26.0, false, false, farm_1.get_next_id()), 3);
+    farm_1.push_back(medicament("Sintusin", 22.0, false, false, farm_1.get_next_id()), 5);
+    farm_1.push_back(medicament("PropoGrip", 33.0, false, false, farm_1.get_next_id()), 2);
+    farm_1.push_back(medicament("Suvezen", 69.59, true, false, farm_1.get_next_id()), 6);
+    farm_1.push_back(medicament("Imigran", 11.82, true, false, farm_1.get_next_id()), 7);
+    farm_1.push_back(medicament("Ferretab", 27.47, true, true, farm_1.get_next_id()), 9);
+    farm_1.push_back(medicament("Nordimet", 262.2, true, true, farm_1.get_next_id()), 6);
+    std::cout << "\n\n" << farm_1 << "\n";
 
     ///initializez date pentru o cerere
-    std::vector<medicament> medicamente_cerere;
-    medicamente_cerere.push_back(medicamente_farmacie[4]);
-    medicamente_cerere.push_back(medicamente_farmacie[7]);
-    medicamente_cerere.push_back(medicamente_farmacie[9]);
-    std::vector<int> cant_cerere = {1, 2, 3};
-    cerere cerere_1(medicamente_cerere, cant_cerere, 0);
-    std::cout << cerere_1 << "\n";
+    cerere cerere_1;
+    cerere_1.push_back(farm_1.get_by_id(4), 1);
+    cerere_1.push_back(farm_1.get_by_nume("Suvezen"), 2);
+    cerere_1.push_back(farm_1.get_by_id(9), 3);
+    std::cout << "\n\n" << cerere_1 << "\n";
 
     ///verific cererea cu functiile implementate
     if(cerere_1.exista_in_stoc(farm_1)){
-        std::cout << "Medicamentele cerute exista in stoc!\n";
+        std::cout << "\n\nMedicamentele cerute exista in stoc!\n";
     } else {
-        std::cout << "Medicamentele cerute NU exista in stoc!\n";
+        std::cout << "\n\nMedicamentele cerute NU exista in stoc!\n";
     }
     std::cout << "\n";
     if(!cerere_1.prescriptie_check()){
         std::cout << "Medicamentele nu pot fi eliberate fara prezentarea unei retete medicale!" << "\n\n";
     }
     float pret = cerere_1.pret_total();
-    std::cout << "Pretul total este de " << pret << "\n";
+    std::cout << "Pretul total este de " << pret << "\n\n";
+
+    ///verific operator= la medicament
+    medicament test_1("ImmunoMix", 47.0, false, false, 1);
+    medicament test_2 = test_1;
+    if(test_2 == test_1) std::cout << "operator= functioneaza\n\n";
 }
 
