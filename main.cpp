@@ -31,6 +31,10 @@ public:
         return med_id;
     }
 
+    void setMedId(int medId) {
+        med_id = medId;
+    }
+
     const std::string &getNume() const {
         return nume;
     }
@@ -40,7 +44,23 @@ public:
         return os;
     }
 
-    medicament& operator=(const medicament& copie) = default;
+    medicament(const medicament& copie) {
+        this->nume = copie.nume;
+        this->pret = copie.pret;
+        this->prescriptie = copie.prescriptie;
+        this->compensat = copie.compensat;
+        this->med_id = copie.med_id;
+    }
+
+    medicament& operator=(const medicament& copie) {
+        this->nume = copie.nume;
+        this->pret = copie.pret;
+        this->prescriptie = copie.prescriptie;
+        this->compensat = copie.compensat;
+        this->med_id = copie.med_id;
+        std::cout << "op= med\n";
+        return *this;
+    }
 
     bool operator==(const medicament &rhs) const {
         return med_id == rhs.med_id;
@@ -51,7 +71,7 @@ public:
     }
 
     ///destructorul este apelat foarte des deoarece vectorul isi realoca spatiul dinamic la fiecare push_back
-    virtual ~medicament() {
+    ~medicament() {
         std::cout << "destr " << *this << ", ";
     }
 };
@@ -82,8 +102,7 @@ public:
         if(first.getMedId() == get_next_id())
             produse_cantitati.emplace_back(first, second);
         else {
-            std::cout << "\n\nEroare: ID gresit";
-            exit(1);
+            std::cout << "\n\nEroare: ID gresit, medicamentul nu a fost adaugat in stocul farmaciei";
         }
     }
 
@@ -91,13 +110,13 @@ public:
         return produse_cantitati[id].first;
     }
 
-    const medicament &get_by_nume(const std::string& nume){
+    int get_by_nume(const std::string& nume){
         for(const auto & produse_cantitati_curr : produse_cantitati){
             if(produse_cantitati_curr.first.getNume() == nume)
-                return produse_cantitati_curr.first;
+                return produse_cantitati_curr.first.getMedId();
         }
         std::cout << "Nu exista medicament cu numele " << nume << "\n";
-        exit(1);
+        return -1;
     }
 
     const std::vector<std::pair<medicament, int>> &getProduseCantitati() const {
@@ -193,7 +212,7 @@ int main(){
     ///initializez date pentru o cerere
     cerere cerere_1;
     cerere_1.push_back(farm_1.get_by_id(4), 1);
-    cerere_1.push_back(farm_1.get_by_nume("Suvezen"), 2);
+    cerere_1.push_back(farm_1.get_by_id(farm_1.get_by_nume("Suvezen")), 2);
     cerere_1.push_back(farm_1.get_by_id(9), 3);
     std::cout << "\n\n" << cerere_1 << "\n";
 
@@ -210,9 +229,17 @@ int main(){
     float pret = cerere_1.pret_total();
     std::cout << "Pretul total este de " << pret << "\n\n";
 
-    ///verific operator= la medicament
+    ///verific operator= si cc la medicament
     medicament test_1("ImmunoMix", 47.0, false, false, 1);
-    medicament test_2 = test_1;
-    if(test_2 == test_1) std::cout << "operator= functioneaza\n\n";
+    medicament test_2;
+    test_2 = test_1; //operator= apelat aici
+    if(test_2 != test_1) std::cout << "operator= nu functioneaza\n\n";
+    test_2.setMedId(-1);
+    if(test_2 == test_1) std::cout << "operator= nu functioneaza\n\n";
+
+    medicament test_3 = test_1; // cc apelat aici
+    if(test_3 != test_1) std::cout << "cc nu functioneaza\n\n";
+    test_3.setMedId(-2);
+    if(test_3 == test_1) std::cout << "cc nu functioneaza\n\n";
 }
 
