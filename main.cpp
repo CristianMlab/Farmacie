@@ -136,7 +136,7 @@ private:
     std::vector<std::pair<medicament, int>> produse_cantitati;
     bool prescriptie;
 public:
-    cerere() = default;
+    cerere() : prescriptie(false) {}
 
     /*
     cerere(const std::vector<std::pair<medicament, int>> &produseCantitati, bool prescriptie) :
