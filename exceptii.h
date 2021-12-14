@@ -2,6 +2,7 @@
 #define FARMACIE_LEGIT_EXCEPTII_H
 
 #include <stdexcept>
+#include <sstream>
 
 class exceptie_adaugare_in_stoc : public std::logic_error {
 public:
