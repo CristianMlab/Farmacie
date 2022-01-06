@@ -10,7 +10,7 @@ private:
     float pret;
     bool prescriptie; /// True pentru medicamentele care necesita prescriptie medicala, False pentru medicamentele "Over the counter"
     bool compensat; /// True pentru compensate, False pentru necompensate (se aplica 90% reducere la pret)
-    int med_id; /// este unic si coincide cu pozitia medicamentului in vectorul din stocul farmaciei
+    int med_id; /// este unic in stoc si coincide cu pozitia medicamentului in vectorul din stocul farmaciei
 public:
     static int nr_medicamente;
 

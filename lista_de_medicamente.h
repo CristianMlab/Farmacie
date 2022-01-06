@@ -14,7 +14,7 @@ public:
 
     explicit lista_de_medicamente(const std::vector<std::pair<medicament, int>> &produseCantitati);
 
-    virtual void push_back(const medicament& first, int second);
+    virtual void push_back(medicament& first, int second);
 
     const std::vector<std::pair<medicament, int>> &getProduseCantitati() const;
 

@@ -3,53 +3,47 @@
 
 #include "cerere.h"
 
-int medicament::nr_medicamente = 0;
-
-void adauga_in_farmacie(stoc_farmacie& f, const medicament& m, int nr){
-    try{
-        f.push_back(m, nr);
-    } catch(exceptie_adaugare_in_stoc &eroare) {
-        std::cout << "\n" << eroare.what() << "\n";
-    }
+void adauga_in_farmacie(lista_de_medicamente& f,medicament m, int nr){
+    f.push_back(m, nr);
 }
 
 void adauga_in_cerere_dupa_id(cerere& c, stoc_farmacie& f, int id, int cant){
-    try{
-        c.push_back(f.get_by_id(id), cant);
-    } catch(exceptie_med_fals &eroare) {
-        std::cout << "\n" << eroare.what() << "\n";
-    }
+    c.push_back(const_cast<medicament &>(f.get_by_id(id)), cant);
 }
 
 void adauga_in_cerere_dupa_nume(cerere& c, stoc_farmacie& f, const std::string &nume, int cant){
-    try{
-        c.push_back(f.get_by_nume(nume), cant);
-    } catch(exceptie_med_fals &eroare) {
-        std::cout << "\n" << eroare.what() << "\n";
-    }
+    c.push_back(const_cast<medicament &>(f.get_by_nume(nume)), cant);
 }
 
 int main(){
     ///initializez niste date pentru stoc
     stoc_farmacie farm_1;
-    adauga_in_farmacie(farm_1,medicament("Lactyferrin", 44.0, false, false), 5);
-    adauga_in_farmacie(farm_1,medicament("ImmunoMix", 47.0, false, false), 3);
-    adauga_in_farmacie(farm_1,medicament("Klearvol", 14.5, false, false), 8);
-    adauga_in_farmacie(farm_1,medicament("Nasirus", 22.0, false, false), 9);
-    adauga_in_farmacie(farm_1,medicament("Golamir", 26.0, false, false), 3);
-    adauga_in_farmacie(farm_1,medicament("Sintusin", 22.0, false, false), 5);
-    adauga_in_farmacie(farm_1,medicament("PropoGrip", 33.0, false, false), 2);
-    adauga_in_farmacie(farm_1,medicament("Suvezen", 69.59, true, false), 6);
-    adauga_in_farmacie(farm_1,medicament("Imigran", 11.82, true, false), 7);
-    adauga_in_farmacie(farm_1,medicament("Ferretab", 27.47, true, true), 9);
-    adauga_in_farmacie(farm_1,medicament("Nordimet", 262.2, true, true), 6);
+    try {
+        adauga_in_farmacie(farm_1, medicament("Lactyferrin", 44.0, false, false), 5);
+        adauga_in_farmacie(farm_1, medicament("ImmunoMix", 47.0, false, false), 3);
+        adauga_in_farmacie(farm_1, medicament("Klearvol", 14.5, false, false), 8);
+        adauga_in_farmacie(farm_1, medicament("Nasirus", 22.0, false, false), 9);
+        adauga_in_farmacie(farm_1, medicament("Golamir", 26.0, false, false), 3);
+        adauga_in_farmacie(farm_1, medicament("Sintusin", 22.0, false, false), 5);
+        adauga_in_farmacie(farm_1, medicament("PropoGrip", 33.0, false, false), 2);
+        adauga_in_farmacie(farm_1, medicament("Suvezen", 69.59, true, false), 6);
+        adauga_in_farmacie(farm_1, medicament("Imigran", 11.82, true, false), 7);
+        adauga_in_farmacie(farm_1, medicament("Ferretab", 27.47, true, true), 9);
+        adauga_in_farmacie(farm_1, medicament("Nordimet", 262.2, true, true), 6);
+    } catch(exceptie_adaugare_in_stoc &eroare) {
+        std::cout << "\n" << eroare.what() << "\n";
+    }
     std::cout << "\n\n" << farm_1 << "\n";
 
     ///initializez date pentru o cerere
     cerere cerere_1(false);
-    adauga_in_cerere_dupa_id(cerere_1, farm_1, 4, 1);
-    adauga_in_cerere_dupa_nume(cerere_1, farm_1, "Suvezen", 2);
-    adauga_in_cerere_dupa_id(cerere_1, farm_1, 9, 3);
+    try {
+        adauga_in_cerere_dupa_id(cerere_1, farm_1, 4, 1);
+        adauga_in_cerere_dupa_nume(cerere_1, farm_1, "Suvezen", 2);
+        adauga_in_cerere_dupa_id(cerere_1, farm_1, 9, 3);
+    } catch(exceptie_med_fals &eroare) {
+        std::cout << "\n" << eroare.what() << "\n";
+    }
     std::cout << "\n\n" << cerere_1 << "\n";
 
     ///verific cererea cu functiile implementate

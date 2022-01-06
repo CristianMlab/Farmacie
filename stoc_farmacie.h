@@ -6,7 +6,7 @@
 class stoc_farmacie : public lista_de_medicamente{
 
 public:
-    void push_back(const medicament& first, int second) override;
+    void push_back(medicament& first, int second) override;
 
     const medicament &get_by_id(int id);
 

@@ -1,11 +1,8 @@
 #include "stoc_farmacie.h"
 
-void stoc_farmacie::push_back(const medicament &first, int second) {
-    if(first.getMedId() == produse_cantitati.size())
-        produse_cantitati.emplace_back(first, second);
-    else {
-        throw exceptie_adaugare_in_stoc();
-    }
+void stoc_farmacie::push_back(medicament &first, int second) {
+    first.setMedId(produse_cantitati.size());
+    produse_cantitati.emplace_back(first, second);
 }
 
 const medicament &stoc_farmacie::get_by_id(int id) {

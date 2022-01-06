@@ -1,8 +1,9 @@
 #include "lista_de_medicamente.h"
 
+
 lista_de_medicamente::lista_de_medicamente() = default;
 
-void lista_de_medicamente::push_back(const medicament& first, int second){
+void lista_de_medicamente::push_back(medicament& first, int second){
     produse_cantitati.emplace_back(first, second);
 }
 

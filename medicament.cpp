@@ -3,12 +3,10 @@
 #include <string>
 
 medicament::medicament(){
-    med_id = nr_medicamente;
     nr_medicamente++;
 }
 
 medicament::medicament(const std::string &nume, float pret, bool prescriptie, bool compensat) : nume(nume),pret(pret),prescriptie(prescriptie),compensat(compensat) {
-    med_id = nr_medicamente;
     nr_medicamente++;
 }
 
@@ -58,3 +56,5 @@ bool medicament::operator!=(const medicament &rhs) const {
 medicament::~medicament() {
     std::cout << "destr " << *this << ", ";
 }
+
+int medicament::nr_medicamente = 0;
