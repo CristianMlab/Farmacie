@@ -1,4 +1,5 @@
 #include "lista_de_medicamente.h"
+#include "cerere.h"
 
 
 lista_de_medicamente::lista_de_medicamente() = default;
@@ -29,4 +30,16 @@ double lista_de_medicamente::valoare_totala() {
             total += produse_cantitati_curr.first.getPret() * produse_cantitati_curr.second;
         }
     return total;
+}
+
+
+lista_de_medicamente* lista_de_medicamente::Create(std::string type){
+    if (type == "cerere")
+        return new cerere(false);
+    else if(type == "cerere_prescriptie")
+        return new cerere(true);
+    else if (type == "stoc")
+        return new stoc_farmacie();
+    else
+        return NULL;
 }

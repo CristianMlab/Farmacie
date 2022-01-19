@@ -12,6 +12,9 @@ public:
 
     const medicament &get_by_nume(const std::string& nume);
 
+    template<typename T>
+    const medicament &get_by_ceva(T id_sau_nume);
+
     friend std::ostream &operator<<(std::ostream &os, const stoc_farmacie &farmacie);
 };
 

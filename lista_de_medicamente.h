@@ -12,6 +12,8 @@ protected:
 public:
     lista_de_medicamente();
 
+    static lista_de_medicamente* Create(std::string type);
+
     explicit lista_de_medicamente(const std::vector<std::pair<medicament, int>> &produseCantitati);
 
     virtual void push_back(medicament& first, int second);

@@ -16,7 +16,7 @@ bool cerere::prescriptie_check() {
     return true;
 }
 
-bool cerere::exista_in_stoc(const stoc_farmacie &farm) {
+bool cerere::exista_in_stoc(const lista_de_medicamente &farm) {
     std::vector<std::pair<medicament, int>> stoc = farm.getProduseCantitati();
     for(auto & produse_cantitati_cerere_curr : produse_cantitati){
         int id = produse_cantitati_cerere_curr.first.getMedId();

@@ -19,6 +19,15 @@ const medicament &stoc_farmacie::get_by_nume(const std::string &nume) {
     throw exceptie_med_fals(nume);
 }
 
+template<> const medicament &stoc_farmacie::get_by_ceva<int>(int id_sau_nume){
+    return get_by_id(id_sau_nume);
+};
+
+template<> const medicament &stoc_farmacie::get_by_ceva<std::string>(std::string id_sau_nume){
+    return get_by_nume(id_sau_nume);
+};
+
+
 std::ostream &operator<<(std::ostream &os, const stoc_farmacie &farmacie) {
     os << "Stocul farmaciei contine " << farmacie.produse_cantitati.size() << " medicamente diferite:\n";
     for(const auto & produse_cantitati_curr : farmacie.produse_cantitati)

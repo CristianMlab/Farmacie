@@ -13,7 +13,7 @@ public:
 
     bool prescriptie_check();
 
-    bool exista_in_stoc( const stoc_farmacie& farm );
+    bool exista_in_stoc( const lista_de_medicamente& farm );
 
     friend std::ostream &operator<<(std::ostream &os, const cerere &cerere);
 };
